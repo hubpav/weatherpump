@@ -1,11 +1,11 @@
 'OpenWeatherMap to MQTT bridge'
 
 import click
-import json
 import logging
 import paho.mqtt.client
 import requests
 import schedule
+import simplejson
 
 __version__ = '1.0.0'
 
@@ -23,11 +23,11 @@ def job_fetch_weather(mqtt, key, city, topic):
     except:
         logging.error('Failed to fetch data from OpenWeatherMap')
     try:
-        mqtt.publish(topic, qos=1, payload=data)
+        mqtt.publish(topic, qos=1, payload=simplejson.dumps(data))
     except KeyboardInterrupt:
         raise
     except:
-        logging.error('Failed to publish the data')
+        logging.error('Failed to publish the data', exc_info=True)
 
 
 def on_connect(client, userdata, flags, rc):

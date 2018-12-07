@@ -40,8 +40,9 @@ def on_connect(client, userdata, flags, rc):
 @click.option('--key', '-k', required=True, help='OpenWeatherMap API key.')
 @click.option('--city', '-c', required=True, help='OpenWeatherMap city id.')
 @click.option('--topic', '-t', required=True, help='MQTT topic to used for publishing.')
+@click.option('--interval', '-i', default=15, type=click.IntRange(1, 99999), help='Interval in minutes between API calls.')
 @click.version_option(version=__version__)
-def main(host, port, key, city, topic):
+def main(host, port, key, city, topic, interval):
     try:
         logging.info('Program started')
         logging.getLogger('schedule').propagate = False
@@ -49,7 +50,7 @@ def main(host, port, key, city, topic):
         mqtt = paho.mqtt.client.Client()
         mqtt.on_connect = on_connect
         mqtt.connect(host, int(port))
-        schedule.every(10).seconds.do(job_fetch_weather, key, city, topic)
+        schedule.every(interval).minutes.do(job_fetch_weather, key, city, topic)
         while True:
             schedule.run_pending()
             mqtt.loop()
